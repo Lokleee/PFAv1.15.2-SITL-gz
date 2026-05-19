@@ -236,8 +236,8 @@
       </sensor>
     </link>
 
-
-    <joint name='operator_1_joint' type='fixed'>
+    <!-- 机体重心与旋转关节坐标系不重合，若考虑臂旋转力矩，需考虑位置偏差 -->
+    <joint name='operator_1_joint' type='revolute'>
       <pose relative_to='base_link'>0.000871 0.000172 0.028455 0 -0 0</pose>
       <parent>base_link</parent>
       <child>operator_1_Link</child>
@@ -250,7 +250,7 @@
           <velocity>-1</velocity>
         </limit>
         <dynamics>
-          <damping>1</damping>
+          <damping>0.1</damping>
         </dynamics>
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
@@ -259,6 +259,12 @@
           <implicit_spring_damper>1</implicit_spring_damper>
         </ode>
       </physics>
+      <sensor name="force_torque_operator" type="force_torque">
+        <update_rate>50</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <topic>operator_ft_sensor_data</topic>
+      </sensor>
     </joint>
     <link name='operator_1_Link'>
       <pose relative_to='operator_1_joint'>0 0 0 0 -0 0</pose>
@@ -329,13 +335,19 @@
         </limit>
         <dynamics>
           <spring_reference>0</spring_reference>
-          <!-- <spring_stiffness>64</spring_stiffness> -->
           <spring_stiffness>300</spring_stiffness>
         </dynamics>
       </axis>
+      <physics>
+        <ode>
+          <implicit_spring_damper>1</implicit_spring_damper>
+        </ode>
+      </physics>
       <sensor name="force_torque" type="force_torque">
-        <update_rate>30</update_rate>
-        <visualize>1</visualize>
+        <update_rate>50</update_rate>
+        <always_on>true</always_on>
+        <visualize>true</visualize>
+        <topic>ft_sensor_data</topic>
       </sensor>
     </joint>
 
@@ -1059,7 +1071,7 @@
       <pose>0 0 0 0 0 0</pose>
       <inertial>
         <pose>0 0 0 0 0 0</pose>
-        <mass>0.015</mass>
+        <mass>0.001</mass>
         <inertia>
           <ixx>1e-05</ixx>
           <ixy>0</ixy>
@@ -1211,166 +1223,32 @@
       <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
       <motorType>velocity</motorType>
     </plugin>
+    <plugin filename="gz-sim-joint-position-controller-system" name="gz::sim::systems::JointPositionController">
+      <joint_name>operator_1_joint</joint_name>
+      <!-- 显式指定话题名，与 ros2_bridge_config.yaml 中的 gz_topic_name 对齐 -->
+      <topic>operator_1_joint_cmd_pos</topic>
+      <!-- 初始目标角度（弧度），防止启动时关节乱动 -->
+      <initial_position>-0.52359878</initial_position>
+      <!-- PID 参数 -->
+      <!-- 减振调参：增大 D 抑制超调，I 暂设 0 排除干扰 -->
+      <p_gain>50</p_gain>
+      <i_gain>0.05</i_gain>
+      <d_gain>8</d_gain>
+      <i_max>10</i_max>
+      <i_min>-10</i_min>
+      <!-- 输出力矩上下限（N·m），对应 SDF 中 effort: 100 -->
+      <cmd_max>100</cmd_max>
+      <cmd_min>-100</cmd_min>
+    </plugin>
+    <!-- <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>joint_states</topic>
+      <options>
+          <include_fixed>true</include_fixed>
+      </options>
+    </plugin> -->
+    <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
+      <topic>operator_1_joint_state</topic>
+      <joint_name>operator_1_joint</joint_name>
+    </plugin>
   </model>
 </sdf>
-<!--
-    <plugin name='rosbag' filename='libgazebo_multirotor_base_plugin.so'>
-      <robotNamespace></robotNamespace>
-      <linkName>base_link</linkName>
-      <rotorVelocitySlowdownSim>10</rotorVelocitySlowdownSim>
-    </plugin>
-
-    <plugin name='groundtruth_plugin' filename='libgazebo_groundtruth_plugin.so'>
-      <robotNamespace/>
-    </plugin>
-    <plugin name='magnetometer_plugin' filename='libgazebo_magnetometer_plugin.so'>
-      <robotNamespace/>
-      <pubRate>100</pubRate>
-      <noiseDensity>0.0004</noiseDensity>
-      <randomWalk>6.4e-06</randomWalk>
-      <biasCorrelationTime>600</biasCorrelationTime>
-      <magTopic>/mag</magTopic>
-    </plugin>
-    <plugin name='barometer_plugin' filename='libgazebo_barometer_plugin.so'>
-      <robotNamespace/>
-      <pubRate>50</pubRate>
-      <baroTopic>/baro</baroTopic>
-    </plugin>
-
-    <plugin name='mavlink_interface' filename='libgazebo_mavlink_interface.so'>
-      <robotNamespace></robotNamespace>
-      <imuSubTopic>/imu</imuSubTopic>
-      <magSubTopic>/mag</magSubTopic>
-      <baroSubTopic>/baro</baroSubTopic>
-      <mavlink_addr>INADDR_ANY</mavlink_addr>
-      <mavlink_udp_port>14560</mavlink_udp_port>
-      <serialEnabled>false</serialEnabled>
-      <serialDevice>/dev/ttyACM0</serialDevice>
-      <baudRate>921600</baudRate>
-      <qgc_addr>INADDR_ANY</qgc_addr>
-      <qgc_udp_port>14550</qgc_udp_port>
-      <sdk_addr>INADDR_ANY</sdk_addr>
-      <sdk_udp_port>14540</sdk_udp_port>
-      <hil_mode>0</hil_mode>
-      <hil_state_level>false</hil_state_level>
-      <enable_lockstep>0</enable_lockstep>
-      <use_tcp>true</use_tcp>
-      <motorSpeedCommandPubTopic>/gazebo/command/motor_speed</motorSpeedCommandPubTopic>
-      <control_channels>
-        <channel name="rotor0">
-          <input_index>0</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>100</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rotor_4_joint</joint_name>
-        </channel>
-
-        <channel name="rotor1">
-          <input_index>1</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>100</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rotor_1_joint</joint_name>
-        </channel>
-
-        <channel name="rotor2">
-          <input_index>2</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>100</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rotor_0_joint</joint_name>
-        </channel>
-
-        <channel name="rotor3">
-          <input_index>3</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>100</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rotor_3_joint</joint_name>
-        </channel>
-
-        <channel name="rotor4">
-          <input_index>4</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>100</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rotor_5_joint</joint_name>
-        </channel>
-
-        <channel name="rotor5">
-          <input_index>5</input_index>
-          <input_offset>0</input_offset>
-          <input_scaling>1500</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>100</zero_position_armed>
-          <joint_control_type>velocity</joint_control_type>
-          <joint_name>rotor_2_joint</joint_name>
-        </channel>
-
-
-       <!-- <channel name="operator">
-          <input_index>9</input_index>
-          <input_offset>1</input_offset>
-          <input_scaling>0.5</input_scaling>
-          <zero_position_disarmed>0</zero_position_disarmed>
-          <zero_position_armed>0</zero_position_armed>
-          <joint_control_type>position</joint_control_type>
-
-          <joint_control_pid>
-            <p>3.5</p>
-            <i>0.5</i>
-            <d>0</d>
-            <iMax>4</iMax>
-            <iMin>-4</iMin>
-            <cmdMax>6</cmdMax>
-            <cmdMin>-6</cmdMin>
-          </joint_control_pid>
-
-          <joint_name>operator_1_joint</joint_name>
-        </channel> -->
-
-      </control_channels>
-
-    </plugin>
-
-    <plugin name="position_controller" filename="libposition_controller.so">
-      <joint_name>operator_1_joint</joint_name>
-
-      <!-- parameter for lighter weight -->
-      <!-- <p_gain>15</p_gain> -->
-      <!-- <i_gain>0.1</i_gain> -->
-      <!-- <d_gain>0.1</d_gain> -->
-
-      <!-- parameter for heavier weight -->
-      <p_gain>15</p_gain>
-      <i_gain>1</i_gain>
-      <d_gain>5</d_gain>
-    </plugin>
-
-    <plugin name='joint_state_publisher' filename='libgazebo_ros_joint_state_publisher.so'>
-      <robotNamespace>/</robotNamespace>
-      <jointName>
-        operator_1_joint, rotor_0_joint, rotor_1_joint, rotor_2_joint, rotor_3_joint, rotor_4_joint, rotor_5_joint,
-        connect_joint, wheel1_joint, wheel2_joint, wheel3_joint
-      </jointName>
-      <updateRate>50.0</updateRate>
-    </plugin>
-
-    <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
-      <updateRate>100.0</updateRate>
-      <topicName>ft_sensor_topic</topicName>
-      <!-- <jointName>force_sensor_joint</jointName> -->
-      <jointName>connect_joint</jointName>
-    </plugin>
-  </model>
-</sdf> -->

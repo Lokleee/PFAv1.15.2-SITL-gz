@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${workspaceFolder}/.vscode/browse.vc.db",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/lokleee/code/way_point_traj/install/quadrotor_msgs/include/**",
+        "/home/lokleee/code/way_point_traj/install/pose_utils/include/**",
+        "/home/lokleee/code/px4_app_ws/install/px4_ros_com/include/**",
+        "/home/lokleee/code/px4_app_ws/install/px4_msgs/include/**",
+        "/opt/ros/humble/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ros2",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++17"
+    }
+  ],
+  "version": 4
+}
