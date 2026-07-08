@@ -3,7 +3,7 @@
   <model name='skyvortex_ocee'>
     <self_collide>false</self_collide>
     <static>false</static>
-    <!-- <pose>-2.0 1.5 0.0 0 0 0</pose> -->
+    <!-- <pose>0 0 0.4 0 0 0</pose> -->
     <link name='base_link'>
       <pose>0 0 0 0 0 0</pose>
       <inertial>
@@ -52,15 +52,16 @@
         </geometry>
         <surface>
           <friction>
-            <ode>
+            <!-- <ode>
               <mu>1</mu>
               <mu2>1</mu2>
-            </ode>
+            </ode> -->
+            <ode />
           </friction>
           <contact>
             <ode>
-              <kp>1e+8</kp>
-              <kd>1</kd>
+              <!-- <kp>1e+8</kp>
+              <kd>1</kd> -->
               <max_vel>0.01</max_vel>
               <min_depth>0.001</min_depth>
             </ode>
@@ -77,15 +78,16 @@
         </geometry>
         <surface>
           <friction>
-            <ode>
+            <!-- <ode>
               <mu>1</mu>
               <mu2>1</mu2>
-            </ode>
+            </ode> -->
+            <ode />
           </friction>
           <contact>
             <ode>
-              <kp>1e+8</kp>
-              <kd>1</kd>
+              <!-- <kp>1e+8</kp>
+              <kd>1</kd> -->
               <max_vel>0.01</max_vel>
               <min_depth>0.001</min_depth>
             </ode>
@@ -102,15 +104,16 @@
         </geometry>
         <surface>
           <friction>
-            <ode>
+            <!-- <ode>
               <mu>1</mu>
               <mu2>1</mu2>
-            </ode>
+            </ode> -->
+            <ode />
           </friction>
           <contact>
             <ode>
-              <kp>1e+8</kp>
-              <kd>1</kd>
+              <!-- <kp>1e+8</kp>
+              <kd>1</kd> -->
               <max_vel>0.01</max_vel>
               <min_depth>0.001</min_depth>
             </ode>
@@ -127,15 +130,16 @@
         </geometry>
         <surface>
           <friction>
-            <ode>
+            <!-- <ode>
               <mu>1</mu>
               <mu2>1</mu2>
-            </ode>
+            </ode> -->
+            <ode />
           </friction>
           <contact>
             <ode>
-              <kp>1e+8</kp>
-              <kd>1</kd>
+              <!-- <kp>1e+8</kp>
+              <kd>1</kd> -->
               <max_vel>0.01</max_vel>
               <min_depth>0.001</min_depth>
             </ode>
@@ -269,7 +273,7 @@
     <link name='operator_1_Link'>
       <pose relative_to='operator_1_joint'>0 0 0 0 -0 0</pose>
       <inertial>
-        <pose>-0.039322 0.00272 -0.023277 0 -0 0</pose>
+        <pose>-0.039322 0.000272 -0.0023277 0 -0 0</pose>
         <mass>0.01</mass>
 
         <!-- <inertia>
@@ -330,10 +334,12 @@
         <limit>
           <lower>-0.6</lower>
           <upper>0</upper>
-          <effort>0</effort>
-          <velocity>0</velocity>
+          <effort>100</effort>
+          <velocity>0.5</velocity>
         </limit>
         <dynamics>
+          <damping>5.0</damping>
+          <friction>1.0</friction>
           <spring_reference>0</spring_reference>
           <spring_stiffness>300</spring_stiffness>
         </dynamics>
@@ -356,7 +362,8 @@
       <inertial>
         <pose>0.00023 -0.008308 -0.339949 0 -0 0</pose>
         <!-- <mass>0.324535</mass> -->
-        <mass>0.01535</mass>
+        <!-- <mass>0.01535</mass> -->
+        <mass>0.0001</mass>
         <!-- <mass>0.0004535</mass> -->
         <inertia>
           <ixx>0.00261433</ixx>
@@ -451,8 +458,8 @@
       <pose relative_to='wheel1_joint'>0 0 0 0 -0 0</pose>
       <inertial>
         <pose>-1e-06 -0.002478 -4.3e-05 0 -0 0</pose>
-        <mass>0.041284</mass>
-        <!-- <mass>0.00041284</mass> -->
+        <!-- <mass>0.041284</mass> -->
+        <mass>0.00041284</mass>
         <inertia>
           <ixx>2.4836e-06</ixx>
           <ixy>1.6072e-10</ixy>
@@ -507,8 +514,8 @@
       <pose relative_to='wheel2_joint'>0 0 0 0 -0 0</pose>
       <inertial>
         <pose>-1e-06 -0.002344 2e-06 0 -0 0</pose>
-        <mass>0.040979</mass>
-        <!-- <mass>0.00041284</mass> -->
+        <mass>0.00041284</mass>
+        <!-- <mass>0.040979</mass> -->
         <inertia>
           <ixx>2.4817e-06</ixx>
           <ixy>1.6072e-10</ixy>
@@ -563,8 +570,8 @@
       <pose relative_to='wheel3_joint'>0 0 0 0 -0 0</pose>
       <inertial>
         <pose>-1e-06 -0.002344 2e-06 0 -0 0</pose>
-        <mass>0.040979</mass>
-        <!-- <mass>0.00041284</mass> -->
+        <mass>0.00041284</mass>
+        <!-- <mass>0.040979</mass> -->
         <inertia>
           <ixx>2.4817e-06</ixx>
           <ixy>1.6071e-10</ixy>
@@ -1067,40 +1074,6 @@
       <velocity_decay/>
     </link>
 
-    <link name='skyvortex_ocee/imu_link'>
-      <pose>0 0 0 0 0 0</pose>
-      <inertial>
-        <pose>0 0 0 0 0 0</pose>
-        <mass>0.001</mass>
-        <inertia>
-          <ixx>1e-05</ixx>
-          <ixy>0</ixy>
-          <ixz>0</ixz>
-          <iyy>1e-05</iyy>
-          <iyz>0</iyz>
-          <izz>1e-05</izz>
-        </inertia>
-      </inertial>
-    </link>
-    <joint name='skyvortex_ocee/imu_joint' type='revolute'>
-      <child>skyvortex_ocee/imu_link</child>
-      <parent>base_link</parent>
-      <axis>
-        <xyz>1 0 0</xyz>
-        <limit>
-          <lower>0</lower>
-          <upper>0</upper>
-          <effort>0</effort>
-          <velocity>0</velocity>
-        </limit>
-        <dynamics>
-          <spring_reference>0</spring_reference>
-          <spring_stiffness>0</spring_stiffness>
-        </dynamics>
-        <use_parent_model_frame>1</use_parent_model_frame>
-      </axis>
-    </joint>
-
     <joint name='d435i_camera_joint' type='fixed'>
       <pose relative_to='operator_1_Link'>-0.1084 0.001842 0.21154 0 -0.5236 -0.016991</pose>
       <child>d435i_camera::base_link</child>
@@ -1228,7 +1201,8 @@
       <!-- 显式指定话题名，与 ros2_bridge_config.yaml 中的 gz_topic_name 对齐 -->
       <topic>operator_1_joint_cmd_pos</topic>
       <!-- 初始目标角度（弧度），防止启动时关节乱动 -->
-      <initial_position>-0.52359878</initial_position>
+      <!-- <initial_position>-0.52359878</initial_position> -->
+      <!-- <initial_position>1.0471975512</initial_position> -->
       <!-- PID 参数 -->
       <!-- 减振调参：增大 D 抑制超调，I 暂设 0 排除干扰 -->
       <p_gain>50</p_gain>
